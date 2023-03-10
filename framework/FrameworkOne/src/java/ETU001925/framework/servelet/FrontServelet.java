@@ -5,8 +5,10 @@
  */
 package ETU001925.framework.servelet;
 
+import ETU001925.framework.Mapping;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +29,16 @@ public class FrontServelet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    HashMap<String,Mapping> mappingUrls;
+
+    public HashMap<String, Mapping> getMappingUrls() {
+        return mappingUrls;
+    }
+
+    public void setMappingUrls(HashMap<String, Mapping> mappingUrls) {
+        this.mappingUrls = mappingUrls;
+    }
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
