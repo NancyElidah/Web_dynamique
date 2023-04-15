@@ -1,8 +1,8 @@
-set PATH_FRAM="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\sprint5\Framework"
-set JAR="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\sprint5\framework.jar"
+set PATH_FRAM="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\sprint6\Framework"
+set JAR="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\sprint6\framework.jar"
 set V="V:\framework.jar"
-set SRC="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\sprint5"
-set PATH_TEST="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\sprint5\testFramework"
+set SRC="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\sprint6"
+set PATH_TEST="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\sprint6\testFramework"
 set TOMCAT="V:\Util2.0\apache-tomcat-8.5.75"
 
 @REM redirection 
