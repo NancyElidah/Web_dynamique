@@ -1,3 +1,4 @@
+<%@ page import="test.* , java.util.ArrayList"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +8,17 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>Tongasoa ianao</h1>
+    <% if (request.getAttribute("lst")!=null) {  %>
+        <% try { ArrayList<Test> all = (ArrayList<Test>) request.getAttribute("lst") ;%>
+    <% for (Test a : all)  { %>
+        <%= a.getName()%>
+    <% }} catch(Exception exe )  { %>
+        <%= exe.getMessage()%>
+    <%}}else{%>
+        mofo
+    <%}%>
+    <% if(request.getAttribute("erreur")!=null) { %>
+        <%= (String)request.getAttribute("erreur") %>
+    <%}%>
 </body>
 </html>

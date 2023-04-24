@@ -69,13 +69,37 @@ public class FrontServlet extends HttpServlet {
                 Class c = Class.forName(mappingUrls.get(url).getClassName());
                 obj = c.getConstructor().newInstance();
                 Method method =Utilitaire.getMethod(c, mappingUrls.get(url).getMethod());
-                out.println(method.getName());
+                Enumeration<String> parameterNames = request.getParameterNames();
+                ArrayList<String> list = Collections.list(parameterNames);
+
+                if (list.size()!=0 && !method.getReturnType().equals(ETU001925.framework.modelView.ModelView.class)){
+                    Object ob = Utilitaire.getVerifyObject(list,obj);
+                    if (ob!=null){
+                        Object finaly = Utilitaire.castingValue(ob,list,request);
+                        
+                        method.invoke(finaly);
+                    }
+                }else if (method.getReturnType().equals(ETU001925.framework.modelView.ModelView.class)){
+                    try {
+                            ETU001925.framework.modelView.ModelView m = new ETU001925.framework.modelView.ModelView();
+                                try{
+                                    m = ( ETU001925.framework.modelView.ModelView )method.invoke(obj);
+                                }catch(Exception exception){
+                                    exception.printStackTrace();
+                                }  
+                            for (String cle : m.getData().keySet()){
+                                request.setAttribute(cle,m.getData().get(cle));
+                            }
+                            RequestDispatcher dispat=request.getRequestDispatcher(m.getView());
+                            dispat.forward(request,response);
+                    }catch(Exception exe){
+                            request.setAttribute(exe.toString(),"erreur");
+                    }
+                }
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
                 request.setAttribute(e.toString(),"erreur");
             }   
     }else{
-        out.print("Diso");
         request.setAttribute("votre url n'existe pas","erreur");
     }
 }

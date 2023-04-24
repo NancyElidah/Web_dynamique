@@ -1,8 +1,8 @@
-set PATH_FRAM="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\sprint5\Framework"
-set JAR="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\sprint5\framework.jar"
+set PATH_FRAM="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\Sprint7\Framework"
+set JAR="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\Sprint7\framework.jar"
 set V="V:\framework.jar"
-set SRC="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\sprint5"
-set PATH_TEST="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\sprint5\testFramework"
+set SRC="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\Sprint7"
+set PATH_TEST="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\Sprint7\testFramework"
 set TOMCAT="V:\Util2.0\apache-tomcat-8.5.75"
 
 @REM redirection 
@@ -16,7 +16,7 @@ javac -d . ModelView.java
 javac -d . FrontServlet.java
 @REM creation du .jar (projet framework)
 jar cf framework.jar ETU001925
-@REM copier .jar dans le dossier sprint6
+@REM copier .jar dans le dossier Sprint7
 copy framework.jar %JAR%
 @REM remplacer .jar dans le variable d'environnement
 if exist %V% (
@@ -24,7 +24,7 @@ if exist %V% (
 )
 copy framework.jar %V%
 cd ../
-@REM redirection vers le dossier sprint6 
+@REM redirection vers le dossier Sprint7 
 cd %SRC%
 @REM creation du projet pour les jsp
 mkdir  %SRC%\temporary
