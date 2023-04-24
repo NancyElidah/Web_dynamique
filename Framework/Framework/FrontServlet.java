@@ -75,8 +75,7 @@ public class FrontServlet extends HttpServlet {
                 if (list.size()!=0 && !method.getReturnType().equals(ETU001925.framework.modelView.ModelView.class)){
                     Object ob = Utilitaire.getVerifyObject(list,obj);
                     if (ob!=null){
-                        Object finaly = Utilitaire.castingValue(ob,list,request);
-                        
+                        Object finaly = Utilitaire.castingValue(ob,list,request);        
                         method.invoke(finaly);
                     }
                 }else if (method.getReturnType().equals(ETU001925.framework.modelView.ModelView.class)){
