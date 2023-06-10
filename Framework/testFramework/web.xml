@@ -8,10 +8,6 @@
             <param-value>assets/images</param-value>
         </init-param>
         <init-param>
-            <param-name>auth_session</param-name>
-            <param-value>isConnected</param-value>
-        </init-param>
-        <init-param>
             <param-name></param-name>
             <param-value></param-value>
         </init-param>

@@ -25,9 +25,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Enumeration;
 import java.util.Collections;
 import java.lang.reflect.Parameter;
+import javax.servlet.annotation.MultipartConfig;
+import com.google.gson.Gson;
+import ETU001925.framework.annotation.RestAPI;
+import javax.servlet.http.Part;
 
+@MultipartConfig
 public class FrontServlet extends HttpServlet {
     HashMap<String , Mapping> mappingUrls;
+    HashMap<String , Object> classSingleton;
 
     public void init() throws ServletException{
         super.init();
@@ -46,17 +52,24 @@ public class FrontServlet extends HttpServlet {
                     ArrayList<Class> allClass = Utilitaire.getAllClass(path,packages);
                    if (allClass.size()!=0 || allClass!=null){
                         mappingUrls = Utilitaire.completeHashMap(allClass);
+                        classSingleton = Utilitaire.getClassSingleton(allClass);
+                        for(Class a : allClass){
+                            if(classSingleton.containsKey(a.getName())){
+                                classSingleton.replace(a.getName(), a.getConstructor().newInstance());
+                            }
+                        }
                    }else{
                        throw new Exception("C'est null");
                    }
                 }
             }
         } catch (Exception exe) {
-            // throw new ServletException(exe);
+            // throw new ServletException(exe.getMessage());
         }
     }
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, Exception {  
+        String header=request.getHeader("multipart/form-data");
         PrintWriter out = response.getWriter();
         String url = request.getRequestURI();
         String[] urlSplit= url.split("/");
@@ -67,47 +80,131 @@ public class FrontServlet extends HttpServlet {
             try {
                 Object obj = null;
                 Class c = Class.forName(mappingUrls.get(url).getClassName());
-                obj = c.getConstructor().newInstance();
+                if(classSingleton.containsKey(c.getName())){
+                    obj = classSingleton.get(c.getName());
+                }
+                else obj = c.getConstructor().newInstance();
                 Method method =Utilitaire.getMethod(c, mappingUrls.get(url).getMethod());
-                out.println(method.getName());
-                if (method.getReturnType().equals(ETU001925.framework.modelView.ModelView.class)){
+                Method method2 = Utilitaire.getRestApi(c);
+                Enumeration<String> parameterNames = request.getParameterNames();
+                ArrayList<String> list = Collections.list(parameterNames);
+                Parameter[] params = method.getParameters();
+                Object[] valueParam = Utilitaire.allValue(method,request);
+                Object[] afterCast = Utilitaire.castingValues(valueParam,params);
+                String destination = getInitParameter("destinationFile");
+                out.print(destination);
+                Field[] field = c.getDeclaredFields();
+                try{
+                    String contentType = request.getContentType();
+                    out.println(contentType);
+                    if(contentType != null && contentType.startsWith("multipart/form-data")){
+                    for(Part part:request.getParts()){
+                        out.println(part);
+                        for(Field f : field){
+                                if(f.getName().equals(part.getName()) && f.getType().equals(ETU001925.framework.utils.FileUpload.class)){
+                                    String fileName = part.getSubmittedFileName();
+                                    InputStream fileInputStream = part.getInputStream();
+                                    byte[] fileBytes = fileInputStream.readAllBytes();
+                                    File fileUpload = new File(destination, fileName);
+                                    fileInputStream.close();
+                                    // OutputStream outputStream = new FileOutputStream(fileUpload);
+                                    ETU001925.framework.utils.FileUpload file = new ETU001925.framework.utils.FileUpload(fileName,fileUpload.getName(),fileBytes);
+                                    out.println(file.getName());
+                                    out.println(file.getByteFile());
+                                    out.println(file.getPath());
+                                    Utilitaire.setOfClass(obj, f.getName(), file);
+                                }
+
+                            }
+                        }
+                    }
+                }catch(Exception exe){
+                    exe.printStackTrace();
+                }
+                if (parameterNames.hasMoreElements() && !method.getReturnType().equals(ETU001925.framework.modelView.ModelView.class)){
+                        Object ob = Utilitaire.getVerifyObject(list,obj);
+                        if (ob!=null){
+                            Object finaly = Utilitaire.castingValue(ob,list,request);
+                            method.invoke(finaly);
+                        }
+                }
+                else if (method.getReturnType().equals(ETU001925.framework.modelView.ModelView.class)){
                     try {
-                            ETU001925.framework.modelView.ModelView m = new ETU001925.framework.modelView.ModelView();
-                                try{
-                                    m = ( ETU001925.framework.modelView.ModelView )method.invoke(obj);
-                                }catch(Exception exception){
-                                    exception.printStackTrace();
-                                }  
+                        ETU001925.framework.modelView.ModelView m = new ETU001925.framework.modelView.ModelView();
+                        if (afterCast.length !=0){
+                            m =(ETU001925.framework.modelView.ModelView)method.invoke(obj,afterCast);
+                        }else{
+                            try{
+                                m = ( ETU001925.framework.modelView.ModelView )method.invoke(obj);
+                            }catch(Exception exception){
+                                exception.printStackTrace();
+                            }
+                            
+                        }
+
+                        if (m.getJson()==true){
+                            try{
+                                ArrayList<Object> allData = new ArrayList<Object>();
+                                for (String cle : m.getData().keySet()) {
+                                    allData.add(m.getData().get(cle));
+                                }
+                                Gson gson = new Gson();
+                                String json = gson.toJson(allData);
+                                response.getWriter().write(json);
+                            }catch(Exception exe){
+                                exe.printStackTrace();
+                            }
+                            
+                        }else{
                             for (String cle : m.getData().keySet()){
                                 request.setAttribute(cle,m.getData().get(cle));
                             }
                             RequestDispatcher dispat=request.getRequestDispatcher(m.getView());
                             dispat.forward(request,response);
+                        }
                     }catch(Exception exe){
-                            exe.printStackTrace();
-                            request.setAttribute(exe.toString(),"erreur");
+                        request.setAttribute(exe.getMessage(),"erreur");
+                    }
+                }else{
+                    if(method2!=null){
+                        if(method.getName().equals(method2.getName())){
+                            try{
+                                if(afterCast.length!=0){
+                                    Object objet = method.invoke(obj,afterCast);
+                                    Gson json = new Gson();
+                                    String jsoString = json.toJson(objet);
+                                    out.println(jsoString);
+                                }else{
+                                    Object objet = method.invoke(obj);
+                                    Gson json = new Gson();
+                                    String jsoString = json.toJson(objet);
+                                    out.println(jsoString);
+                                }
+                            }catch(Exception exe){
+                                exe.printStackTrace();
+                            }
+                        }
                     }
                 }
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                request.setAttribute(e.toString(),"erreur");
-            }   
-    }else{
-        request.setAttribute("votre url n'existe pas","erreur");
+                request.setAttribute(e.getMessage(),"erreur");
+            }
+        }else{
+            request.setAttribute("votre url n'existe pas","erreur");
+        }
     }
-}
-@Override
-protected void doGet(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
-    try {
-        processRequest(request, response);
-    }catch(Exception exe){}
-}
-@Override
-protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
-    try {
-        processRequest(request, response);
-    }catch(Exception exe){}
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+          processRequest(request, response);
+        }catch(Exception exe){}
+    }
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+          processRequest(request, response);
+        }catch(Exception exe){}
+    }
 } 
-}
