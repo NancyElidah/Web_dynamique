@@ -5,8 +5,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import ETU001925.framework.Mapping;
+import ETU001925.framework.annotation.Scope;
 import ETU001925.framework.annotation.Url;
-
 import java.lang.reflect.Method;
 import java.lang.Class;
 import javax.xml.parsers.*;
@@ -17,27 +17,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import  java.lang.reflect.Parameter;
-import java.net.http.HttpRequest;
+import java.sql.Date;
 import java.util.Date;
-import java.util.Enumeration;
-
-
 import javax.servlet.http.Part;
 
 
 
-
 public class Utilitaire {
-    public static Method getMethod(Class classe , String nomMethod){
-        Method method = null ;
-        Method[] allMethods = classe.getDeclaredMethods();
-        for(Method m : allMethods){
-            if (m.getName().equals(nomMethod)){
-                method = m ;
-            }
-        }
-        return method;
-    }
     public static ArrayList<Class> getAllClass (String path,File packages) throws Exception {
         ArrayList<Class> all = new ArrayList<Class>();
         
@@ -106,6 +92,16 @@ public class Utilitaire {
         } 
         return mapping;
     }
+    public static HashMap<String,Object> getClassSingleton(ArrayList<Class> allClass)throws Exception{
+        HashMap<String,Object> mapping = new HashMap<String,Object>();
+        for (Class c : allClass){
+                if (c.isAnnotationPresent(Scope.class)){ 
+                        mapping.put(c.getName(), null);
+                }
+        }
+        return mapping;
+    }
+
     public static String getValueConfig(InputStream inputFile)throws Exception{
             String path = null;
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -146,11 +142,34 @@ public class Utilitaire {
             Method m =obj.getClass().getMethod( att, value.getClass());
             m.invoke(obj,value);
     }
+    public static void reset(Object obj , Field f)throws Exception{
+        if (f.getType().getName().equals("java.lang.Integer")) {
+            Integer a = 0;
+            setOfClass(obj,f.getName(),a);
+        }
+        else if (f.getType().getName().equals("java.lang.Double")){
+            Double a = 0.0;
+            setOfClass(obj,f.getName(),a);
+        }
+        else if (f.getType().getName().equals("java.util.Date")){
+            java.util.Date a = new java.util.Date();
+            setOfClass(obj,f.getName(),a);
+        }
+        else if (f.getType().getName().equals("java.sql.Date")){
+            java.sql.Date a=new java.sql.Date(0);
+            setOfClass(obj,f.getName(),a);
+        }
+        else {
+            String a = "";
+            setOfClass(obj,f.getName(),a);
+        }
+    }
     public static Object castingValue(Object objet,ArrayList<String> params,HttpServletRequest request)throws Exception{
             for (String oneP : params){
                 String values = request.getParameter(oneP);
                 Field field = objet.getClass().getDeclaredField(oneP);
                 System.out.println(field.getType().getName()+""+field.getName());
+                    reset(objet,field);
                     if(field.getType().getName().equals("java.lang.Integer")){
                         int number = Integer.valueOf(values);
                         setOfClass(objet,oneP,number);
@@ -193,7 +212,7 @@ public class Utilitaire {
         Object[] allO = new Object[allP.length];
             int value = 0 ; 
             for (Parameter p : allP){
-                allO[value] = request.getParameter(p.getName());
+                allO[value] = request.getParameter("id");
                 System.out.println(allO[value]);
                 value++;
             }
@@ -220,5 +239,16 @@ public class Utilitaire {
         }
         return finaly;
     }
+    public static Method getMethod(Class classe , String nomMethod){
+        Method method = null ;
+        Method[] allMethods = classe.getDeclaredMethods();
+        for(Method m : allMethods){
+            if (m.getName().equals(nomMethod)){
+                method = m ;
+            }
+        }
+        return method;
+    }
+    
     
 }

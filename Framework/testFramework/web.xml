@@ -3,18 +3,6 @@
     <servlet>
         <servlet-name>FrontServlet</servlet-name>
         <servlet-class>ETU001925.framework.servlet.FrontServlet</servlet-class>
-        <init-param>
-            <param-name>destinationFile</param-name>
-            <param-value>assets/images</param-value>
-        </init-param>
-        <init-param>
-            <param-name>auth_session</param-name>
-            <param-value>isConnected</param-value>
-        </init-param>
-        <init-param>
-            <param-name></param-name>
-            <param-value></param-value>
-        </init-param>
     </servlet>
     <servlet-mapping>
         <servlet-name>FrontServlet</servlet-name>
