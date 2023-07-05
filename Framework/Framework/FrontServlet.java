@@ -85,7 +85,6 @@ public class FrontServlet extends HttpServlet {
                 }
                 else obj = c.getConstructor().newInstance();
                 Method method =Utilitaire.getMethod(c, mappingUrls.get(url).getMethod());
-                Method method2 = Utilitaire.getRestApi(c);
                 Enumeration<String> parameterNames = request.getParameterNames();
                 ArrayList<String> list = Collections.list(parameterNames);
                 Parameter[] params = method.getParameters();
@@ -141,49 +140,13 @@ public class FrontServlet extends HttpServlet {
                             }
                             
                         }
-
-                        if (m.getJson()==true){
-                            try{
-                                ArrayList<Object> allData = new ArrayList<Object>();
-                                for (String cle : m.getData().keySet()) {
-                                    allData.add(m.getData().get(cle));
-                                }
-                                Gson gson = new Gson();
-                                String json = gson.toJson(allData);
-                                response.getWriter().write(json);
-                            }catch(Exception exe){
-                                exe.printStackTrace();
-                            }
-                            
-                        }else{
                             for (String cle : m.getData().keySet()){
                                 request.setAttribute(cle,m.getData().get(cle));
                             }
                             RequestDispatcher dispat=request.getRequestDispatcher(m.getView());
                             dispat.forward(request,response);
-                        }
                     }catch(Exception exe){
                         request.setAttribute(exe.getMessage(),"erreur");
-                    }
-                }else{
-                    if(method2!=null){
-                        if(method.getName().equals(method2.getName())){
-                            try{
-                                if(afterCast.length!=0){
-                                    Object objet = method.invoke(obj,afterCast);
-                                    Gson json = new Gson();
-                                    String jsoString = json.toJson(objet);
-                                    out.println(jsoString);
-                                }else{
-                                    Object objet = method.invoke(obj);
-                                    Gson json = new Gson();
-                                    String jsoString = json.toJson(objet);
-                                    out.println(jsoString);
-                                }
-                            }catch(Exception exe){
-                                exe.printStackTrace();
-                            }
-                        }
                     }
                 }
             } catch (ClassNotFoundException e) {

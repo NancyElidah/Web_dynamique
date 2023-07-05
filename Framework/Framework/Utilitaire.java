@@ -150,34 +150,11 @@ public class Utilitaire {
             Method m =obj.getClass().getMethod( att, value.getClass());
             m.invoke(obj,value);
     }
-    public static void reset(Object obj , Field f)throws Exception{
-        if (f.getType().getName().equals("java.lang.Integer")) {
-            Integer a = 0;
-            setOfClass(obj,f.getName(),a);
-        }
-        else if (f.getType().getName().equals("java.lang.Double")){
-            Double a = 0.0;
-            setOfClass(obj,f.getName(),a);
-        }
-        else if (f.getType().getName().equals("java.util.Date")){
-            java.util.Date a = new java.util.Date();
-            setOfClass(obj,f.getName(),a);
-        }
-        else if (f.getType().getName().equals("java.sql.Date")){
-            java.sql.Date a=new java.sql.Date(0);
-            setOfClass(obj,f.getName(),a);
-        }
-        else {
-            String a = "";
-            setOfClass(obj,f.getName(),a);
-        }
-    }
     public static Object castingValue(Object objet,ArrayList<String> params,HttpServletRequest request)throws Exception{
             for (String oneP : params){
                 String values = request.getParameter(oneP);
                 Field field = objet.getClass().getDeclaredField(oneP);
                 System.out.println(field.getType().getName()+""+field.getName());
-                    reset(objet,field);
                     if(field.getType().getName().equals("java.lang.Integer")){
                         int number = Integer.valueOf(values);
                         setOfClass(objet,oneP,number);
@@ -257,16 +234,5 @@ public class Utilitaire {
         }
         return method;
     }
-    public static Method getRestApi(Class classe){
-        Method[] allMethod = classe.getDeclaredMethods();
-        Method method = null;
-        for (Method m : allMethod){
-            if (m.isAnnotationPresent(RestAPI.class)){
-                method = m ;
-                System.out.println(method.getName());
-            }
-        }
-        return method;
-    }
-    
+
 }

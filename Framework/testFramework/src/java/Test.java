@@ -4,8 +4,6 @@ import ETU001925.framework.utils.FileUpload;
 import ETU001925.framework.annotation.Url;
 import java.util.ArrayList;
 import java.sql.Date;
-import ETU001925.framework.annotation.RestAPI;
-import ETU001925.framework.annotation.Scope;
 
 @Scope
 public class Test{
@@ -41,36 +39,20 @@ public class Test{
         ModelView m = new ModelView();
         ArrayList<Test> all = new ArrayList<Test>();
         Date d = Date.valueOf("2004-02-21");
-        Test t = new Test("Maimbo",d);
+        Test t = new Test("Nivo",d);
         Test a = new Test("Ranto",d);
         all.add(t);
         all.add(a);
         m.addItem("lst",all);
         m.setView("jsp/test.jsp");
-        System.out.println(m.getView());
-        System.out.println(this.getI());
-        this.setI(i);
         return m ;
-    }
-    @Url(url = "hehe")
-    @RestAPI
-    public ArrayList<Test> hehe()throws Exception{
-        ArrayList<Test> all = new ArrayList<Test>();
-        Date d = Date.valueOf("2004-02-21");
-        Test t = new Test("Maimbo",d);
-        Test a = new Test("Ranto",d);
-        all.add(t);
-        all.add(a);
-        System.out.println(this.getI());
-        this.setI(i);
-        return all;
     }
     @Url(url="huhu")
     public ModelView huhu()throws Exception{
         ModelView m = new ModelView();
         ArrayList<Test> all = new ArrayList<Test>();
         Date d = Date.valueOf("2004-02-21");
-        Test t = new Test("Maimbo",d);
+        Test t = new Test("Nivo",d);
         Test a = new Test("Ranto",d);
         all.add(t);
         all.add(a);
@@ -90,23 +72,11 @@ public class Test{
         ModelView m = new ModelView();
         ArrayList<Test> all = new ArrayList<Test>();
         Date d = Date.valueOf("2004-02-21");
-        Test t = new Test("Maimbo",d);
+        Test t = new Test("Nivo",d);
         all.add(t);
         m.addItem("lst",all);
         m.setView("test.jsp");
         System.out.println(m.getView());
         return m ;
-    }
-    public void setI(int i){
-        this.i = i +1 ;
-        System.out.println(i);
-    }
-    public int getI(){
-        return this.i; 
-    }
-    @Url(url = "hoho")
-    public void hoho()throws Exception{
-        System.out.println(this.getFile().getName());
-        System.out.println(this.getFile().getPath());
     }
 }
