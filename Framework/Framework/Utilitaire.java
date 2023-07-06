@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import ETU001925.framework.Mapping;
+import ETU001925.framework.annotation.RestAPI;
 import ETU001925.framework.annotation.Scope;
 import ETU001925.framework.annotation.Url;
 import java.lang.reflect.Method;
@@ -17,9 +18,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import  java.lang.reflect.Parameter;
-import java.sql.Date;
 import java.util.Date;
 import javax.servlet.http.Part;
+import ETU001925.framework.annotation.RestAPI;
+
 
 
 
@@ -249,6 +251,15 @@ public class Utilitaire {
         }
         return method;
     }
-    
-    
+    public static Method getRestApi(Class classe){
+        Method[] allMethod = classe.getDeclaredMethods();
+        Method method = null;
+        for (Method m : allMethod){
+            if (m.isAnnotationPresent(RestAPI.class)){
+                method = m ;
+                System.out.println(method.getName());
+            }
+        }
+        return method;
+    }
 }

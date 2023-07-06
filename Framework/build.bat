@@ -1,8 +1,8 @@
-set PATH_FRAM="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\FramVao\Framework"
-set JAR="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\FramVao\framework.jar"
+set PATH_FRAM="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\sprint14\Framework"
+set JAR="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\sprint14\framework.jar"
 set V="V:\framework.jar"
-set SRC="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\FramVao"
-set PATH_TEST="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\FramVao\testFramework"
+set SRC="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\sprint14"
+set PATH_TEST="V:\Fianarana\L2\S4\Mr Naina\Projet\backup Fram\sprint14\testFramework"
 set TOMCAT="V:\Util2.0\apache-tomcat-8.5.75"
 
 @REM redirection 
@@ -11,6 +11,7 @@ cd %PATH_FRAM%
 @REM compiler Framework
 javac -d . Url.java
 javac -d . Scope.java
+javac -d . RestAPI.java
 javac -d . Mapping.java
 javac -d . Utilitaire.java
 javac -d . ModelView.java
@@ -18,7 +19,7 @@ javac -d . FileUpload.java
 javac -d . FrontServlet.java
 @REM creation du .jar (projet framework)
 jar cf framework.jar ETU001925
-@REM copier .jar dans le dossier framVao
+@REM copier .jar dans le dossier sprint14
 copy framework.jar %JAR%
 @REM remplacer .jar dans le variable d'environnement
 if exist %V% (
@@ -26,7 +27,7 @@ if exist %V% (
 )
 copy framework.jar %V%
 cd ../
-@REM redirection vers le dossier framVao 
+@REM redirection vers le dossier sprint14 
 cd %SRC%
 @REM creation du projet pour les jsp
 mkdir  %SRC%\temporary

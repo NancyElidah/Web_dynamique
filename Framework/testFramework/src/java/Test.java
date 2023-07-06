@@ -1,8 +1,10 @@
 package test;
 import ETU001925.framework.modelView.*;
-import ETU001925.framework.annotation.*;
+import ETU001925.framework.annotation.Url;
 import java.util.ArrayList;
 import java.sql.Date;
+import ETU001925.framework.annotation.RestAPI;
+import ETU001925.framework.annotation.Scope;
 
 @Scope
 public class Test{
@@ -38,6 +40,36 @@ public class Test{
         m.addItem("lst",all);
         m.setView("jsp/test.jsp");
         System.out.println(m.getView());
+        System.out.println(this.getI());
+        this.setI(i);
+        return m ;
+    }
+    @Url(url = "hehe")
+    @RestAPI
+    public ArrayList<Test> hehe()throws Exception{
+        ArrayList<Test> all = new ArrayList<Test>();
+        Date d = Date.valueOf("2004-02-21");
+        Test t = new Test("Maimbo",d);
+        Test a = new Test("Ranto",d);
+        all.add(t);
+        all.add(a);
+        System.out.println(this.getI());
+        this.setI(i);
+        t.setI(this.getI());
+        a.setI(this.getI());
+        return all;
+    }
+    @Url(url="huhu")
+    public ModelView huhu()throws Exception{
+        ModelView m = new ModelView();
+        ArrayList<Test> all = new ArrayList<Test>();
+        Date d = Date.valueOf("2004-02-21");
+        Test t = new Test("Maimbo",d);
+        Test a = new Test("Ranto",d);
+        all.add(t);
+        all.add(a);
+        m.setJson(true);
+        m.addItem("liste", all);
         System.out.println(this.getI());
         this.setI(i);
         return m ;

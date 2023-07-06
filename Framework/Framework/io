@@ -1,0 +1,44 @@
+protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    // Vérifier si la requête est de type "multipart/form-data"
+    boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+
+    if (isMultipart) {
+        // Créer un objet FileItemFactory
+        FileItemFactory factory = new DiskFileItemFactory();
+
+        // Créer un objet ServletFileUpload avec l'objet FileItemFactory
+        ServletFileUpload upload = new ServletFileUpload(factory);
+
+        try {
+            // Parcourir les items de la requête
+            List<FileItem> items = upload.parseRequest(request);
+            
+            for (FileItem item : items) {
+                // Vérifier si l'item est un champ de formulaire ou un fichier
+                if (item.isFormField()) {
+                    // Traitement des champs de formulaire (si nécessaire)
+                    String fieldName = item.getFieldName();
+                    String fieldValue = item.getString();
+                    // ...
+                } else {
+                    // L'item est un fichier
+                    String fileName = item.getName();
+                    // ...
+                    // Traitement du fichier (par exemple, enregistrement sur le disque)
+                    File uploadedFile = new File("chemin/vers/le/dossier/destination", fileName);
+                    item.write(uploadedFile);
+                }
+            }
+
+            // Rediriger ou afficher une confirmation de succès
+            response.sendRedirect("success.html");
+
+        } catch (Exception e) {
+            // Gérer les éventuelles exceptions lors de l'upload
+            response.sendRedirect("error.html");
+        }
+    } else {
+        // Requête invalide - pas de contenu multipart
+        response.sendRedirect("error.html");
+    }
+}
