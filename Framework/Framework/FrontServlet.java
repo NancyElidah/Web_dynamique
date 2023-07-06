@@ -83,11 +83,35 @@ public class FrontServlet extends HttpServlet {
                 Method method =Utilitaire.getMethod(c, mappingUrls.get(url).getMethod());
                 Method method2 = Utilitaire.getRestApi(c);
                 Enumeration<String> parameterNames = request.getParameterNames();
-                ArrayList<String> list = Collections.list(parameterNames);
-                Parameter[] params = method.getParameters();
-                Object[] valueParam = Utilitaire.allValue(method,request);
-                Object[] afterCast = Utilitaire.castingValues(valueParam,params);
+                try{
+                    String contentType = request.getContentType();
+                    out.println(contentType);
+                    if(contentType != null && contentType.startsWith("multipart/form-data")){
+                    for(Part part:request.getParts()){
+                        out.println(part);
+                        for(Field f : field){
+                                if(f.getName().equals(part.getName()) && f.getType().equals(ETU001925.framework.utils.FileUpload.class)){
+                                    String fileName = part.getSubmittedFileName();
+                                    InputStream fileInputStream = part.getInputStream();
+                                    byte[] fileBytes = fileInputStream.readAllBytes();
+                                    File fileUpload = new File(destination, fileName);
+                                    fileInputStream.close();
+                                    // OutputStream outputStream = new FileOutputStream(fileUpload);
+                                    ETU001925.framework.utils.FileUpload file = new ETU001925.framework.utils.FileUpload(fileName,fileUpload.getName(),fileBytes);
+                                    out.println(file.getName());
+                                    out.println(file.getByteFile());
+                                    out.println(file.getPath());
+                                    Utilitaire.setOfClass(obj, f.getName(), file);
+                                }
+
+                            }
+                        }
+                    }
+                }catch(Exception exe){
+                    exe.printStackTrace();
+                }
                 if (parameterNames.hasMoreElements() && !method.getReturnType().equals(ETU001925.framework.modelView.ModelView.class)){
+                        ArrayList<String> list = Collections.list(parameterNames);
                         Object ob = Utilitaire.getVerifyObject(list,obj);
                         if (ob!=null){
                             Object finaly = Utilitaire.castingValue(ob,list,request);

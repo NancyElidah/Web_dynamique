@@ -4,8 +4,8 @@
         <servlet-name>FrontServlet</servlet-name>
         <servlet-class>ETU001925.framework.servlet.FrontServlet</servlet-class>
         <init-param>
-            <param-name></param-name>
-            <param-value></param-value>
+            <param-name>destinationFile</param-name>
+            <param-value>assets/images</param-value>
         </init-param>
         <init-param>
             <param-name></param-name>

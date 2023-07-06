@@ -1,6 +1,6 @@
 package test;
 import ETU001925.framework.modelView.*;
-import ETU001925.framework.annotation.Url;
+import ETU001925.framework.annotation.*;
 import java.util.ArrayList;
 import java.sql.Date;
 import ETU001925.framework.annotation.Scope;
@@ -32,17 +32,14 @@ public class Test{
         ModelView m = new ModelView();
         ArrayList<Test> all = new ArrayList<Test>();
         Date d = Date.valueOf("2004-02-21");
-        Test t = new Test("Maimbo",d);
+        Test t = new Test("Nivo",d);
         Test a = new Test("Ranto",d);
         all.add(t);
         all.add(a);
         m.setJson(true);
         m.addItem("liste", all);
-        System.out.println(this.getI());
-        this.setI(i);
         return m ;
     }
-    @Url(url="test")
     public void save()throws Exception{
         System.out.println("Nom : "+this.getName());
          System.out.println("Date : "+this.getAge());
