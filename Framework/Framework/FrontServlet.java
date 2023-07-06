@@ -19,15 +19,19 @@ import ETU001925.framework.modelView.*;
 import ETU001925.framework.utils.*;
 import javax.servlet.ServletContext;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Enumeration;
 import java.util.Collections;
 import java.lang.reflect.Parameter;
+import javax.servlet.annotation.MultipartConfig;
+import com.google.gson.Gson;
+import ETU001925.framework.annotation.RestAPI;
 
+
+@MultipartConfig
 public class FrontServlet extends HttpServlet {
     HashMap<String , Mapping> mappingUrls;
+    HashMap<String , Object> classSingleton;
 
     public void init() throws ServletException{
         super.init();
@@ -46,13 +50,19 @@ public class FrontServlet extends HttpServlet {
                     ArrayList<Class> allClass = Utilitaire.getAllClass(path,packages);
                    if (allClass.size()!=0 || allClass!=null){
                         mappingUrls = Utilitaire.completeHashMap(allClass);
+                        classSingleton = Utilitaire.getClassSingleton(allClass);
+                        for(Class a : allClass){
+                            if(classSingleton.containsKey(a.getName())){
+                                classSingleton.replace(a.getName(), a.getConstructor().newInstance());
+                            }
+                        }
                    }else{
                        throw new Exception("C'est null");
                    }
                 }
             }
         } catch (Exception exe) {
-            // throw new ServletException(exe);
+            // throw new ServletException(exe.getMessage());
         }
     }
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -63,55 +73,72 @@ public class FrontServlet extends HttpServlet {
         int length = urlSplit.length -1;
         url = urlSplit[length];
         if(mappingUrls.containsKey(url)){
-            out.println(url);
             try {
                 Object obj = null;
                 Class c = Class.forName(mappingUrls.get(url).getClassName());
-                obj = c.getConstructor().newInstance();
+                if(classSingleton.containsKey(c.getName())){
+                    obj = classSingleton.get(c.getName());
+                }
+                else obj = c.getConstructor().newInstance();
                 Method method =Utilitaire.getMethod(c, mappingUrls.get(url).getMethod());
+                Method method2 = Utilitaire.getRestApi(c);
                 Enumeration<String> parameterNames = request.getParameterNames();
                 ArrayList<String> list = Collections.list(parameterNames);
                 Parameter[] params = method.getParameters();
                 Object[] valueParam = Utilitaire.allValue(method,request);
                 Object[] afterCast = Utilitaire.castingValues(valueParam,params);
-
-                if (list.size()!=0  && !method.getReturnType().equals(ETU001925.framework.modelView.ModelView.class)){
-                    Object ob = Utilitaire.getVerifyObject(list,obj);
-                    if (ob!=null){
-                        Object finaly = Utilitaire.castingValue(ob,list,request);
-                        method.invoke(finaly);
-                    }
+                if (parameterNames.hasMoreElements() && !method.getReturnType().equals(ETU001925.framework.modelView.ModelView.class)){
+                        Object ob = Utilitaire.getVerifyObject(list,obj);
+                        if (ob!=null){
+                            Object finaly = Utilitaire.castingValue(ob,list,request);
+                            method.invoke(finaly);
+                        }
                 }
                 else if (method.getReturnType().equals(ETU001925.framework.modelView.ModelView.class)){
-                        try {
-                                ETU001925.framework.modelView.ModelView m = new ETU001925.framework.modelView.ModelView();
-                                if (afterCast.length !=0){
-                                    m =(ETU001925.framework.modelView.ModelView)method.invoke(obj,afterCast);
-                                }else{
-                                    try{
-                                        m = ( ETU001925.framework.modelView.ModelView )method.invoke(obj);
-                                    }catch(Exception exception){
-                                        exception.printStackTrace();
-                                    }
-                                }
-                                for (String cle : m.getData().keySet()){
-                                    request.setAttribute(cle,m.getData().get(cle));
-                                }
-                                RequestDispatcher dispat=request.getRequestDispatcher(m.getView());
-                                dispat.forward(request,response);
-                            }catch(Exception exe){
-                                request.setAttribute(exe.toString(),"erreur");
+                    try {
+                        ETU001925.framework.modelView.ModelView m = new ETU001925.framework.modelView.ModelView();
+                        if (afterCast.length !=0){
+                            m =(ETU001925.framework.modelView.ModelView)method.invoke(obj,afterCast);
+                        }else{
+                            try{
+                                m = ( ETU001925.framework.modelView.ModelView )method.invoke(obj);
+                            }catch(Exception exception){
+                                exception.printStackTrace();
                             }
-                }
-        } catch (ClassNotFoundException e) {
-            request.setAttribute(e.toString(),"erreur");
-        }
-            
-    }else{
-        request.setAttribute("votre url n'existe pas","erreur");
-    }
-}
+                            
+                        }
 
+                        if (m.getJson()==true){
+                            try{
+                                ArrayList<Object> allData = new ArrayList<Object>();
+                                for (String cle : m.getData().keySet()) {
+                                    allData.add(m.getData().get(cle));
+                                }
+                                Gson gson = new Gson();
+                                String json = gson.toJson(allData);
+                                response.getWriter().write(json);
+                            }catch(Exception exe){
+                                exe.printStackTrace();
+                            }
+                            
+                        }else{
+                            for (String cle : m.getData().keySet()){
+                                request.setAttribute(cle,m.getData().get(cle));
+                            }
+                            RequestDispatcher dispat=request.getRequestDispatcher(m.getView());
+                            dispat.forward(request,response);
+                        }
+                    }catch(Exception exe){
+                        request.setAttribute(exe.getMessage(),"erreur");
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                request.setAttribute(e.getMessage(),"erreur");
+            }
+        }else{
+            request.setAttribute("votre url n'existe pas","erreur");
+        }
+    }
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
