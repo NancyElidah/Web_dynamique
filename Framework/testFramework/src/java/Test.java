@@ -49,4 +49,16 @@ public class Test{
         System.out.println("Nom : "+this.getName());
          System.out.println("Date : "+this.getAge());
     }
+    @Url(url="emp")
+    public ModelView test(Double id)throws Exception{
+        ModelView m = new ModelView();
+        ArrayList<Test> all = new ArrayList<Test>();
+        Date d = Date.valueOf("2004-02-21");
+        Test t = new Test("Nivo",d);
+        all.add(t);
+        m.addItem("lst",all);
+        m.setView("test.jsp");
+        System.out.println(m.getView());
+        return m ;
+    }
 }

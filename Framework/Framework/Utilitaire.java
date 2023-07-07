@@ -117,4 +117,108 @@ public class Utilitaire {
             path = nodeList.item(0).getTextContent();
         return path;
     }
+    public static String[] getNameofFields(Object obj){
+       Field[] fields=obj.getClass().getDeclaredFields();
+        String[] noms=new String[fields.length];
+        for(int i=0 ; i<fields.length ; i++){
+            noms[i]=fields[i].getName();
+        }
+        return noms;
+    }
+    public static Object getVerifyObject(ArrayList<String> names,Object objet)throws Exception{ 
+        Object ob = null;
+            String[] allFields = getNameofFields(objet);
+            int length = names.size();
+            int count = 0;
+            for(String n:names){
+                for (String s : allFields){
+                    if (s.equals(n)){
+                        count++;
+                    }
+                }
+            }
+            if (length==count) ob = objet;
+        return ob;
+    }
+    public static void setOfClass(Object obj , String attribute , Object value)throws Exception{
+            String s = attribute.substring(0,1).toUpperCase()+attribute.substring(1);
+            String att = "set"+s;
+            Method m =obj.getClass().getMethod( att, value.getClass());
+            m.invoke(obj,value);
+    }
+    public static Object castingValue(Object objet,ArrayList<String> params,HttpServletRequest request)throws Exception{
+            for (String oneP : params){
+                String values = request.getParameter(oneP);
+                Field field = objet.getClass().getDeclaredField(oneP);
+                System.out.println(field.getType().getName()+""+field.getName());
+                    if(field.getType().getName().equals("java.lang.Integer")){
+                        int number = Integer.valueOf(values);
+                        setOfClass(objet,oneP,number);
+                    }else if(field.getType().getName().equals("java.lang.Double")){
+                        double decimal = Double.parseDouble(values);
+                        setOfClass(objet,oneP,decimal);
+                    }else if (field.getType().getName().equals("java.util.Date")){
+                        java.util.Date date = new java.util.Date(values);
+                        setOfClass(objet,oneP,date);
+                    }else if (field.getType().getName().equals("java.sql.Date")){
+                        java.sql.Date date = java.sql.Date.valueOf(values);
+                        setOfClass(objet,oneP,date);
+                    }else setOfClass(objet,oneP,values);
+            }
+        return objet;
+    }
+    public static Method getMethods(ArrayList<String>param , Method m)throws Exception{
+        Parameter[] allParam = m.getParameters();
+        int length_p = allParam.length;
+        Method method = null ; 
+        int count = 0 ; 
+        for (String p : param){
+            if (allParam.length!=0){
+                for(Parameter params : allParam){
+                    if (p.equals(params.getName())) count++;
+                }
+            }else{
+                return m ;
+            }
+
+        }
+        if(length_p == count) method = m ;
+        return method ; 
+    }
+    public static Object[] allValue(Method m , HttpServletRequest request)throws Exception{
+        Parameter[] allP = m.getParameters();
+        for(Parameter pp : allP){
+            System.out.println(pp.getName());
+        }
+        Object[] allO = new Object[allP.length];
+            int value = 0 ; 
+            for (Parameter p : allP){
+                allO[value] = request.getParameter(p.getName());
+                System.out.println(allO[value]);
+                value++;
+            }
+        
+        return allO;
+    }
+    public static Object[] castingValues(Object[] allObject, Parameter[] param)throws Exception{
+        Object[] finaly = new Object[allObject.length];
+        int v = 0 ; 
+        for (Parameter p : param){
+            if (p.getType().getName().equals("java.lang.Integer")){
+                finaly[v]=Integer.valueOf(allObject[v].toString());
+            }else if (p.getType().getName().equals("java.lang.Double")){
+                finaly[v]=Double.parseDouble(allObject[v].toString());
+            }else if (p.getType().getName().equals("java.util.Date")){
+                java.util.Date date = new java.util.Date(allObject[v].toString());
+                finaly[v]= date;
+            }else if (p.getType().getName().equals("java.sql.Date")){
+                finaly[v]= java.sql.Date.valueOf(allObject[v].toString());
+            }else{
+                finaly[v]=allObject[v];
+            }
+            v++;
+        }
+        return finaly;
+    }
+    
 }
